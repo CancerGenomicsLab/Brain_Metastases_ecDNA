@@ -25,7 +25,7 @@ if (!dir.exists(outdir)) {
   dir.create(outdir, recursive = TRUE)
 }
 
-meta_xlsx <- file.path(input_dir, "sample_metadata.xlsx")
+meta_xlsx <- file.path(input_dir, "metadata", "sample_metadata.xlsx")
 meta_sheet <- "ecDNA WGS Sample Sequencing Statistics-refined"
 wgs_genelist_dir <- file.path(input_dir, "WGS_genelist")
 wes_records_csv <- file.path(input_dir, "GCAP", "batch_wes_run_fCNA_records_with_symbols.csv")
