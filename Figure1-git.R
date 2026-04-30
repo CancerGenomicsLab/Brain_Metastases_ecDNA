@@ -1,5 +1,3 @@
-options(stringsAsFactors = FALSE)
-
 # =========================================================
 # 0) Packages
 # =========================================================
@@ -14,6 +12,7 @@ library(ComplexHeatmap)
 library(circlize)
 library(scales)
 library(grid)
+library(patchwork)
 
 # =========================================================
 # 1) Input configuration and output directory
@@ -204,11 +203,6 @@ clean_data <- df_meta %>%
   )
 
 write.csv(clean_data, file.path(outdir, "Fig1_sample_level_status_B.csv"), row.names = FALSE)
-
-# Check WES samples with only noncircular records.
-wes_should_be_amp <- setdiff(wes_noncircular_samples, wes_circular_samples)
-bad_amp <- clean_data %>%
-  filter(Sample %in% wes_should_be_amp, Status != "Amplicon (Linear)")
 
 # =========================================================
 # 7) Figure 1a: cancer type and genomic status donut plot
@@ -593,9 +587,6 @@ p1c_Met <- ggplot(dat_tmp, aes(x = category, y = prop_overall, fill = status)) +
 
 ggsave(file.path(outdir, "Figure1c_Heterogeneity_WGSonly_pri_met.pdf"), p1c_Pri+p1c_Met, width=9, height=3.5)
 
-
-
-
 # =========================================================
 # 13) Figure 1d: oncogene copy-number heatmaps
 # =========================================================
@@ -663,10 +654,7 @@ build_fig1d <- function(mode=c("WGS","ALL")){
     filter(Sample %in% rownames(mat)) %>%
     arrange(match(Sample, rownames(mat)))
   stopifnot(nrow(ann_df) == nrow(mat))
-  
-  # hard check: annotation length == matrix nrow
-  stopifnot(nrow(ann_df) == nrow(mat))
-  
+
   # bar table: complete gene × cancer, fill 0, strict order
   bar_long <- all_long %>%
     distinct(Sample, gene) %>%
