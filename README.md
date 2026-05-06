@@ -1,4 +1,4 @@
-# Brain_Metastases_ecDNA
+# Mapping the dynamics of ecDNA evolution during metastasis to the brain
 
 This repository contains R scripts used to analyze ecDNA-related genomic features, paired primary-metastatic dynamics, and survival associations in brain metastasis samples.
 
