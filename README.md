@@ -6,7 +6,7 @@ This repository contains R scripts used to analyze ecDNA-related genomic feature
 
 ![Study design and cohort composition](assets/picture/Figure%201.jpg)
 
-**Study design**  
+## **Study design**  
 (A) Study design and cohort composition of the brain metastasis cohort, including cancer type distribution, paired longitudinal samples, in-house WGS, and the ecDNA analysis pipeline.  
 (B) Cohort-level summary of cancer types and genomic status, including ecDNA-positive, linear amplicon, and negative samples.
 
