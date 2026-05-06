@@ -61,16 +61,17 @@ bash Pipeline/05_ecdna_wgs_ampsuite.sh
 bash Pipeline/06_ecdna_wes_gcap.sh
 ```
 
-`01_bam_processing.sh` trims paired FASTQ files with Trim Galore, aligns reads with BWA-MEM2, sorts BAM files with SAMtools, marks duplicates with GATK, and applies BQSR to generate final `.BQSR.bam` files. 
-`02_wes_mutation.sh` and `03_wgs_mutation.sh` run GATK Mutect2, contamination estimation, read-orientation filtering, PASS variant selection, and Funcotator MAF annotation for WES and WGS samples, respectively.   
-`04_cnv_calling.sh` runs CNVkit batch processing, segmentation, copy-number calling, mitochondrial chromosome removal, and CNV heatmap generation.  
-`05_ecdna_wgs_ampsuite.sh` runs AmpliconSuite with AmpliconArchitect and AmpliconClassifier on trimmed WGS FASTQ files.
-`06_ecdna_wes_gcap.sh` generates a GCAP input table from CNVkit `.call.cns` files, runs `gcap.ASCNworkflow`, and converts Ensembl gene IDs to gene symbols for downstream figure scripts.
-
+- `01_bam_processing.sh` trims paired FASTQ files with Trim Galore, aligns reads with BWA-MEM2, sorts BAM files with SAMtools, marks duplicates with GATK, and applies BQSR to generate final `.BQSR.bam` files.
+- `02_wes_mutation.sh` and `03_wgs_mutation.sh` run GATK Mutect2, contamination estimation, read-orientation filtering, PASS variant selection, and Funcotator MAF annotation for WES and WGS samples, respectively.
+- `04_cnv_calling.sh` runs CNVkit batch processing, segmentation, copy-number calling, mitochondrial chromosome removal, and CNV heatmap generation.
+- `05_ecdna_wgs_ampsuite.sh` runs AmpliconSuite with AmpliconArchitect and AmpliconClassifier on trimmed WGS FASTQ files.
+- `06_ecdna_wes_gcap.sh` generates a GCAP input table from CNVkit `.call.cns` files, runs `gcap.ASCNworkflow`, and converts Ensembl gene IDs to gene symbols for downstream figure scripts.
 
 ## Requirements
 The analyses were performed in R. Required packages include:
-```text
+```markdown
+```r
+library(tidyverse)
 library(tidyverse)
 library(data.table)
 library(readxl)
@@ -91,6 +92,7 @@ library(circlize)
 library(ComplexHeatmap)
 library(CINmetrics)
 ```
+The upstream preprocessing pipeline also requires command-line tools including Trim Galore, BWA-MEM2, SAMtools, GATK, CNVkit, AmpliconSuite, GCAP, and GNU parallel. Tool paths and reference files should be configured in `Pipeline/config.sh`.
 
 ## Running the figure analysis
 
@@ -123,6 +125,7 @@ The scripts expect input files under the `Inputs/` directory. Main input types i
 - CNVkit segment files
 - feature-level copy-number tables
 - oncogene reference list
+
 Excel sheet names in the scripts must match the actual sheet names in the metadata workbook.
 
 ## Outputs
