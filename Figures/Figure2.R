@@ -1080,10 +1080,6 @@ local_df <- tbl_mut_sample %>%
   ) %>%
   filter(!is.na(Sample), !is.na(cancer_type), !is.na(n_func_mut))
 
-# View local original cancer type and mapped cancer type.
-local_type_map <- local_df %>%
-  count(Cancer_type_raw, cancer_type, sort = TRUE)
-
 public_df <- pub %>%
   transmute(
     Sample = as.character(.data[[pub_sample_col]]),
@@ -1095,10 +1091,6 @@ public_df <- pub %>%
     cancer_type = normalize_cancer_type(.data[[pub_cancer_col]])
   ) %>%
   filter(!is.na(Sample), !is.na(cancer_type), !is.na(n_func_mut))
-
-# View public original cancer types and mapped cancer types.
-public_type_map <- public_df %>%
-  count(Cancer_type_raw, cancer_type, sort = TRUE)
 
 # Preserve both local and public shared cancer types.
 common_cancers <- intersect(
