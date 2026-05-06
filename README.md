@@ -90,7 +90,6 @@ The analyses were performed in R. Required packages include:
 
 ```r
 library(tidyverse)
-library(tidyverse)
 library(data.table)
 library(readxl)
 library(readr)
