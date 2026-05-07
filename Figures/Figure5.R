@@ -49,13 +49,6 @@ ECDNA2_COLS_KM <- c(
   "ecDNA+" = "#8B0000"
 )
 
-ECDNA3_COLS_KM <- c(
-  "No amplicon" = "blue",
-  "ecDNA- (amplicon)" = "#DE9B13",
-  "ecDNA+" = "#8B0000"
-)
-
-
 KM_XLIM  <- c(0, 60)
 KM_BREAK <- 12
 
@@ -665,20 +658,10 @@ tbl_clinical <- tbl_clinical_raw %>%
     by = c("SampleID" = "Sample")
   ) %>%
   mutate(
-    ecDNA_Status_3group = case_when(
-      ecDNA_status_raw == "ecDNA+" ~ "ecDNA+",
-      ecDNA_status_raw == "Amplicon (Linear)" ~ "ecDNA- (amplicon)",
-      ecDNA_status_raw == "Negative" ~ "No amplicon",
-      ecDNA_status_fig2 == "ecDNA+" ~ "ecDNA+",
-      TRUE ~ NA_character_
-    ),
-    ecDNA_Status_3group = factor(
-      ecDNA_Status_3group,
-      levels = c("No amplicon", "ecDNA- (amplicon)", "ecDNA+")
-    ),
     ecDNA_Status = case_when(
-      ecDNA_Status_3group == "ecDNA+" ~ "ecDNA+",
-      ecDNA_Status_3group %in% c("No amplicon", "ecDNA- (amplicon)") ~ "ecDNA-",
+      ecDNA_status_raw == "ecDNA+" ~ "ecDNA+",
+      ecDNA_status_raw %in% c("Negative", "Amplicon (Linear)") ~ "ecDNA-",
+      ecDNA_status_fig2 == "ecDNA+" ~ "ecDNA+",
       TRUE ~ NA_character_
     ),
     ecDNA_Status = factor(ecDNA_Status, levels = c("ecDNA-", "ecDNA+")),
@@ -1014,135 +997,6 @@ km_latency <- ggsurvplot(
   break.time.by = KM_BREAK,
   ggtheme = theme_classic(base_size = 12)
 )
-
-# ============================================================
-# 9.1) Three-group KM curves
-# Goal:
-#   3-category KM for:
-#   1) OS
-#   2) Time to brain metastasis (Latency)
-# Groups:
-#   No amplicon / ecDNA- (amplicon) / ecDNA+
-# ============================================================
-
-plot_km_3group <- function(df, time_col, event_col, group_col,
-                           xlab, ylab, title,
-                           legend_labs = c("No amplicon", "ecDNA- (amplicon)", "ecDNA+")) {
-  
-  df_use <- df %>%
-    filter(
-      !is.na(.data[[time_col]]),
-      !is.na(.data[[event_col]]),
-      !is.na(.data[[group_col]])
-    ) %>%
-    mutate(
-      .time  = .data[[time_col]],
-      .event = .data[[event_col]],
-      .group = factor(.data[[group_col]],
-                      levels = c("No amplicon", "ecDNA- (amplicon)", "ecDNA+"))
-    )
-  
-  fit <- survfit(
-    survival::Surv(.time, .event) ~ .group,
-    data = df_use
-  )
-  
-  ggsurvplot(
-    fit,
-    data = df_use,
-    risk.table = TRUE,
-    pval = TRUE,
-    conf.int = FALSE,
-    palette = unname(ECDNA3_COLS_KM),
-    xlab = xlab,
-    ylab = ylab,
-    title = title,
-    legend.title = NULL,
-    legend.labs = legend_labs,
-    risk.table.height = 0.23,
-    xlim = KM_XLIM,
-    break.time.by = KM_BREAK,
-    ggtheme = theme_classic(base_size = 12)
-  )
-}
-
-# ----------------------------
-# 9.1.1) Three-group OS KM
-# ----------------------------
-tbl_km_os_3group <- tbl_analysis_combined %>%
-  filter(!is.na(OS_Months), !is.na(OS_event), !is.na(ecDNA_Status_3group))
-
-tbl_km_os_3group_plot <- truncate_km_data(
-  df = tbl_km_os_3group,
-  time_col = "OS_Months",
-  event_col = "OS_event",
-  max_time = KM_XLIM[2]
-)
-
-km_os_3group <- plot_km_3group(
-  df = tbl_km_os_3group_plot,
-  time_col = "OS_Months",
-  event_col = "OS_event",
-  group_col = "ecDNA_Status_3group",
-  xlab = "OS (Months)",
-  ylab = "Survival probability",
-  title = "Supplementary"
-)
-
-logrank_os_3group <- survdiff(
-  Surv(OS_Months, OS_event) ~ ecDNA_Status_3group,
-  data = tbl_km_os_3group
-)
-
-sink(file.path(DIR_TABLE, "figure5_logrank_OS_3group.txt"))
-print(logrank_os_3group)
-sink()
-
-# ----------------------------
-# 9.1.2) Three-group latency KM
-# ----------------------------
-tbl_km_latency_3group <- tbl_analysis_combined %>%
-  filter(!is.na(Latency_Months), !is.na(ecDNA_Status_3group)) %>%
-  mutate(Latency_event = 1)
-
-tbl_km_latency_3group_plot <- truncate_km_data(
-  df = tbl_km_latency_3group,
-  time_col = "Latency_Months",
-  event_col = "Latency_event",
-  max_time = KM_XLIM[2]
-)
-
-km_latency_3group <- plot_km_3group(
-  df = tbl_km_latency_3group_plot,
-  time_col = "Latency_Months",
-  event_col = "Latency_event",
-  group_col = "ecDNA_Status_3group",
-  xlab = "Time to brain metastasis (Months)",
-  ylab = "Event-free proportion",
-  title = "Supplementary"
-)
-
-logrank_latency_3group <- survdiff(
-  Surv(Latency_Months, Latency_event) ~ ecDNA_Status_3group,
-  data = tbl_km_latency_3group
-)
-
-sink(file.path(DIR_TABLE, "figure5_logrank_Latency_3group.txt"))
-print(logrank_latency_3group)
-sink()
-
-
-# ============================================================
-km_os_3group$plot      <- km_os_3group$plot + coord_cartesian(xlim = KM_XLIM, clip = "on")
-km_latency_3group$plot <- km_latency_3group$plot + coord_cartesian(xlim = KM_XLIM, clip = "on")
-
-ggsave(file.path(DIR_PLOT, "figure5_KM_OS_3group_curve.pdf"), km_os_3group$plot, width = 6.5, height = 5.2)
-ggsave(file.path(DIR_PLOT, "figure5_KM_OS_3group_curve.png"), km_os_3group$plot, width = 6.5, height = 5.2, dpi = 300)
-ggsave(file.path(DIR_PLOT, "figure5_KM_OS_3group_risktable.pdf"), km_os_3group$table, width = 6.5, height = 2.4)
-
-ggsave(file.path(DIR_PLOT, "figure5_KM_latency_3group_curve.pdf"), km_latency_3group$plot, width = 6.5, height = 5.2)
-ggsave(file.path(DIR_PLOT, "figure5_KM_latency_3group_curve.png"), km_latency_3group$plot, width = 6.5, height = 5.2, dpi = 300)
-ggsave(file.path(DIR_PLOT, "figure5_KM_latency_3group_risktable.pdf"), km_latency_3group$table, width = 6.5, height = 2.4)
 
 
 
@@ -1662,15 +1516,42 @@ write.csv(
   row.names = FALSE
 )
 
-
-
 # ============================================================
 # 10.9) Cancer-type-specific OS analysis
 # Goal:
 #   Evaluate the ecDNA effect on OS separately within each cancer type.
 # ============================================================
+tbl_os_by_cancer <- tbl_analysis_combined %>%
+  filter(
+    !is.na(OS_Months),
+    !is.na(OS_event),
+    !is.na(ecDNA_Status),
+    !is.na(CancerType)
+  ) %>%
+  mutate(
+    CancerType = str_trim(as.character(CancerType)),
+    ecDNA_Status = factor(ecDNA_Status, levels = c("ecDNA-", "ecDNA+"))
+  )
+
+tbl_stratified_os <- run_ecDNA_cox_within_cancer(
+  df = tbl_os_by_cancer,
+  time_col = "OS_Months",
+  event_col = "OS_event",
+  cancer_col = "CancerType",
+  min_n = MIN_N_PER_CANCER_FOR_KM,
+  min_events = MIN_EVENTS_FOR_COX,
+  min_pos = MIN_ECDNA_POS_FOR_COX
+) %>%
+  arrange(P_value, desc(HR))
+
+write.csv(
+  tbl_stratified_os,
+  file.path(DIR_TABLE, "figure5_OS_ecDNA_cox_within_cancer_type.csv"),
+  row.names = FALSE
+)
+
 # ============================================================
-# 10.9b) Cancer-type-specific latency analysis
+# 10.10) Cancer-type-specific latency analysis
 # Goal:
 #   Evaluate the ecDNA effect on latency separately within each cancer type.
 # ============================================================
@@ -1703,9 +1584,8 @@ write.csv(
   row.names = FALSE
 )
 
-
 # ============================================================
-# 10.10) Supplementary faceted KM curves by cancer type
+# 10.11) Supplementary faceted KM curves by cancer type
 # Goal:
 #   Visualize OS differences by ecDNA status within eligible cancer types.
 # ============================================================
@@ -1720,7 +1600,7 @@ plot_os_km_facet <- plot_facet_km_manual(
 )
 
 # ============================================================
-# 10.11) Cancer-type-level ecDNA prevalence versus survival
+# 10.12) Cancer-type-level ecDNA prevalence versus survival
 # Goal:
 #   Explore whether cancer types with higher ecDNA prevalence also show
 #   shorter median OS or latency.
