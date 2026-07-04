@@ -1,4 +1,4 @@
-<img width="432" height="25" alt="image" src="https://github.com/user-attachments/assets/7a657c6d-42dd-4ddc-98e0-a075d3c268ed" /># Mapping the dynamics of ecDNA evolution during metastasis to the brain
+# Mapping the dynamics of ecDNA evolution during metastasis to the brain
 
 
 ## Project overview
