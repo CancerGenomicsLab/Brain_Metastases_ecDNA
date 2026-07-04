@@ -1,4 +1,4 @@
-# Mapping the dynamics of ecDNA evolution during metastasis to the brain
+<img width="432" height="25" alt="image" src="https://github.com/user-attachments/assets/7a657c6d-42dd-4ddc-98e0-a075d3c268ed" /># Mapping the dynamics of ecDNA evolution during metastasis to the brain
 
 
 ## Project overview
@@ -8,14 +8,14 @@ Here, we present the first comprehensive brain metastasis ecDNA map (eMAP), reve
 ## Study design
 ![Study design and cohort composition](assets/picture/Figure%201.jpg)
 
-(A) Study design and cohort composition of the brain metastasis cohort, including cancer type distribution, paired longitudinal samples, in-house WGS, and the ecDNA analysis pipeline.  
+(A) Study design and cohort composition of the brain metastasis cohort, including cancer type distribution, paired longitudinal samples, in-house WGS/WES, and the ecDNA analysis pipeline.  
 (B) Cohort-level summary of cancer types and genomic status, including ecDNA-positive, linear amplicon, and negative samples.
 
 ## Key Findings
 
 #### Figure 1: ecDNA is recurrently detected in brain metastases across multiple primary tumor types
 
-#### Figure 2: ecDNA-positive brain metastases exhibit distinct genomic features and stronger oncogenic amplification
+#### Figure 2: ecDNA-positive brain metastases exhibit distinct genomic features and significant oncogenic amplification
 
 #### Figure 3: Paired longitudinal analysis reveals evolutionary dynamics of ecDNA in brain metastasis
 
@@ -25,13 +25,19 @@ Here, we present the first comprehensive brain metastasis ecDNA map (eMAP), reve
 
 
 ## Summary
-This study provides a systematic characterization of ecDNA in brain metastases across multiple tumor types. The results show that ecDNA is frequently present, associated with increased genomic instability and oncogene amplification, exhibits variable patterns between primary and metastatic tumors, and correlates with clinical outcomes.
+This study systematically characterizes ecDNA in brain metastases across multiple tumor types. EcDNA was recurrently detected in brain metastasis specimens, associated with increased genomic instability, oncogene amplification, and positive selection, and showed conservation, acquisition, and remodeling during primary-to-brain metastatic progression. Clinically, ecDNA positivity was associated with shorter latency to brain metastasis and worse overall survival, supporting ecDNA-associated genome remodeling as a candidate mechanism of intracranial metastatic adaptation.
 
 ---
 
-## Repository structure
-This repository contains R scripts used to analyze ecDNA-related genomic features, paired primary-metastatic dynamics, and survival associations in brain metastasis samples.
+## Repository purpose
 
+This repository provides code associated with the manuscript. The scripts were used for sequencing-data preprocessing, ecDNA/focal amplification analysis, genomic feature analysis, paired primary–brain metastasis comparisons, and survival analysis.
+
+The repository is intended to document the analytical workflow and support transparency of the study. It is not designed as a one-command reproducible pipeline. Running the scripts requires access to the corresponding sequencing data, processed intermediate files, reference genomes, sample metadata, and locally configured software environments.
+
+
+## Repository structure
+This repository contains scripts used to analyze ecDNA-related genomic features, paired primary-metastatic dynamics, and survival associations in brain metastasis samples.
 
 ```text
 .
@@ -54,7 +60,9 @@ This repository contains R scripts used to analyze ecDNA-related genomic feature
 
 ## Pipeline preprocessing
 
-The `Pipeline/` directory contains shell scripts for upstream sequencing-data processing. Global paths, reference files, software paths, thread numbers, and sample IDs are defined in `Pipeline/config.sh`. The pipeline starts from paired FASTQ files, generates BQSR-processed BAM files, performs WES/WGS somatic mutation calling, runs CNVkit copy-number calling, and detects ecDNA/focal CNA events using AmpliconSuite for WGS and GCAP for WES.
+The `Pipeline/` directory contains shell scripts used for upstream sequencing-data processing in this study. These scripts document the preprocessing strategy, including read alignment, somatic mutation calling, copy-number analysis, and ecDNA/focal CNA detection.
+
+Global paths, reference files, software paths, thread numbers, and sample identifiers are defined in Pipeline/config.sh. The scripts were developed for the computing environment used in this study and may require adaptation before reuse in other environments.
 
 The pipeline scripts are organized as follows:
 
@@ -68,7 +76,7 @@ Pipeline/05_ecdna_wgs_ampsuite.sh    WGS ecDNA detection using AmpliconSuite
 Pipeline/06_ecdna_wes_gcap.sh        WES focal CNA / ecDNA inference using GCAP
 ```
 
-Run the upstream pipeline from the repository root after editing `Pipeline/config.sh`:
+The following commands illustrate the order in which the upstream scripts were used in this study after configuring `Pipeline/config.sh`:
 
 ```bash
 bash Pipeline/01_bam_processing.sh
@@ -109,11 +117,13 @@ library(circlize)
 library(ComplexHeatmap)
 library(CINmetrics)
 ```
-The upstream preprocessing pipeline also requires command-line tools including Trim Galore, BWA-MEM2, SAMtools, GATK, CNVkit, AmpliconSuite, GCAP, and GNU parallel. Tool paths and reference files should be configured in `Pipeline/config.sh`.
+The upstream preprocessing scripts also require command-line tools including Trim Galore, BWA-MEM2, SAMtools, GATK, CNVkit, AmpliconSuite, GCAP, and GNU parallel. Tool paths and reference files should be configured in `Pipeline/config.sh`.
 
 ## Running the figure analysis
 
-After upstream pipeline outputs are prepared, run the figure scripts from the repository root:
+The `Figures/` directory contains R scripts used to generate manuscript-related analyses and figures from processed study-specific data tables. These scripts depend on intermediate files and metadata generated during upstream analysis and are provided as reference code for the analyses reported in the manuscript.
+
+The following commands illustrate the figure scripts associated with the main analyses:
 
 ```bash
 Rscript Figures/Figure1.R
