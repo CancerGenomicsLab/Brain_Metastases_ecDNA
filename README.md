@@ -122,12 +122,3 @@ The upstream preprocessing scripts also require command-line tools including Tri
 ## Running the figure analysis
 
 The `Figures/` directory contains R scripts used to generate manuscript-related analyses and figures from processed study-specific data tables. These scripts depend on intermediate files and metadata generated during upstream analysis and are provided as reference code for the analyses reported in the manuscript.
-
-The following commands illustrate the figure scripts associated with the main analyses:
-
-```bash
-Rscript Figures/Figure1.R
-Rscript Figures/Figure2.R
-Rscript Figures/Figure3.R
-Rscript Figures/Figure5.R
-```
